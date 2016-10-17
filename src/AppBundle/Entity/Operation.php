@@ -17,29 +17,32 @@ class Operation {
     private $id;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=true)
      **/
     protected $opDate;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $description;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $tags;
-
-    /**
-     * @ORM\Column(type="decimal", scale=2)
+     * @ORM\Column(type="decimal", scale=2, nullable=true)
      */
     private $amount;
 
     /**
-     * @ORM\Column(type="string", length=4)
+     * @ORM\Column(type="string", length=4, nullable=true)
      */
     private $currency;
+
+	/**
+	 * @ORM\ManyToOne(targetEntity="Subcategory", inversedBy="operations")
+	 * @ORM\JoinColumn(name="subcategory_id", referencedColumnName="id")
+	 */
+	private $subcategory;
+
+    	
 
     /**
      * Get id
@@ -52,21 +55,21 @@ class Operation {
     }
 
     /**
-     * Set created
+     * Set opDate
      *
-     * @param \DateTime $created
+     * @param \DateTime $opDate
      *
      * @return Operation
      */
-    public function setOpDate($created)
+    public function setOpDate($opDate)
     {
-        $this->opDate = $created;
+        $this->opDate = $opDate;
 
         return $this;
     }
 
     /**
-     * Get created
+     * Get opDate
      *
      * @return \DateTime
      */
@@ -97,30 +100,6 @@ class Operation {
     public function getDescription()
     {
         return $this->description;
-    }
-
-    /**
-     * Set tags
-     *
-     * @param string $tags
-     *
-     * @return Operation
-     */
-    public function setTags($tags)
-    {
-        $this->tags = $tags;
-
-        return $this;
-    }
-
-    /**
-     * Get tags
-     *
-     * @return string
-     */
-    public function getTags()
-    {
-        return $this->tags;
     }
 
     /**
@@ -169,5 +148,29 @@ class Operation {
     public function getCurrency()
     {
         return $this->currency;
+    }
+
+    /**
+     * Set subcategory
+     *
+     * @param \AppBundle\Entity\Subcategory $subcategory
+     *
+     * @return Operation
+     */
+    public function setSubcategory(\AppBundle\Entity\Subcategory $subcategory = null)
+    {
+        $this->subcategory = $subcategory;
+
+        return $this;
+    }
+
+    /**
+     * Get subcategory
+     *
+     * @return \AppBundle\Entity\Subcategory
+     */
+    public function getSubcategory()
+    {
+        return $this->subcategory;
     }
 }
