@@ -102,15 +102,17 @@ exit;
 		$mapping = [];
 		$mapping['clothing'] = ['clothing', 'shoes', 'laundry'];
 		$mapping['transportation'] = ['taxi', 'publicTransport', 'toll', 'transportation', 'parking', 'bike'];
-		$mapping['fun'] = ['costume', 'cafe', 'fun', 'cigarette', 'entertainment', 'restaurant', 'drink', 'nightlife', 'sport', 'kite', 'forro', 'danceLesson'];
+		$mapping['fun'] = ['musicLesson', 'toy', 'costume', 'cafe', 'fun',
+			'cigarette', 'entertainment', 'restaurant', 'drink', 'bar',
+			'nightlife', 'sport', 'kite', 'forro', 'danceLesson'];
 		$mapping['food'] = ['breakfast', 'workfood', 'lunch', 'diner', 'grocery', 'snack'];
 		$mapping['culture'] = ['show', 'cinema'];
 		$mapping['shelter'] = ['rent', 'houseMove'];
 		$mapping['utilities'] = ['scam', 'misc', 'phone'];
 		$mapping['medical'] = ['medication'];
-		$mapping['insurance'] = ['entertainment'];
+		$mapping['insurance'] = [];
 		$mapping['household'] = ['cd', 'tech', 'household'];
-		$mapping['personal'] = ['entertainment', 'visaBrasil'];
+		$mapping['personal'] = [ 'visaBrasil', 'hairdresser'];
 		$mapping['education'] = ['press', 'education', 'course', 'book'];
 		$mapping['saving'] = [];
 		$mapping['gift'] = ['gift'];
@@ -143,9 +145,6 @@ exit;
 		$subcategories = [];
 
 		foreach ($rows as $row) {
-			if ( ! $row['description']) {
-				continue;
-			}
 
 			if ( ! $row['subcategory']) {
 				continue;
@@ -219,11 +218,7 @@ exit;
 
 		foreach ($rows as $row) {
 
-			if ( ! $row['description']) {
-				continue;
-			}
-
-			$subcatSlug = $row['subcategory'];
+			$subcatSlug = trim($row['subcategory']);
 
 			if (!$subcatSlug) {
 				continue;
@@ -235,7 +230,7 @@ exit;
 			$sub = $repo->findOneBySlug($subcatSlug);
 
 			if ( ! $sub) {
-				throw new \Exception("missing subcategory $subcatSlug");
+				throw new \Exception("missing subcategory $subcatSlug" . print_r($row, true));
 			}
 
 			$op = new Operation();
