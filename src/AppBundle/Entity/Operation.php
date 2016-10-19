@@ -17,7 +17,7 @@ class Operation {
     private $id;
 
     /**
-     * @ORM\Column(type="datetime", nullable=true)
+     * @ORM\Column(type="date", nullable=true)
      **/
     protected $opDate;
 
