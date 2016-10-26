@@ -102,16 +102,16 @@ exit;
 		$mapping = [];
 		$mapping['clothing'] = ['clothing', 'shoes', 'laundry'];
 		$mapping['transportation'] = ['taxi', 'publicTransport', 'toll', 'transportation', 'parking', 'bike'];
-		$mapping['fun'] = ['musicLesson', 'toy', 'costume', 'cafe', 'fun',
+		$mapping['fun'] = ['musicLesson', 'musicInstrument', 'toy', 'costume', 'cafe', 'fun',
 			'cigarette', 'entertainment', 'restaurant', 'drink', 'bar',
 			'nightlife', 'sport', 'kite', 'forro', 'danceLesson'];
 		$mapping['food'] = ['breakfast', 'workfood', 'lunch', 'diner', 'grocery', 'snack'];
 		$mapping['culture'] = ['show', 'cinema'];
-		$mapping['shelter'] = ['rent', 'houseMove'];
-		$mapping['utilities'] = ['scam', 'misc', 'phone'];
+		$mapping['shelter'] = ['rent', 'houseMove', 'condominio', 'gaz', 'internet'];
+		$mapping['utilities'] = ['scam', 'misc', 'phone', 'nothing', 'modem3g', 'unidentified'];
 		$mapping['medical'] = ['medication'];
 		$mapping['insurance'] = [];
-		$mapping['household'] = ['cd', 'tech', 'household'];
+		$mapping['household'] = ['cd', 'tech', 'household', 'furniture', 'tool'];
 		$mapping['personal'] = [ 'visaBrasil', 'hairdresser'];
 		$mapping['education'] = ['press', 'education', 'course', 'book'];
 		$mapping['saving'] = [];
@@ -276,13 +276,31 @@ exit;
 	}
 
 
-	/**
-     * @Route("/import", name="import operations")
-     */
-    public function importAction(Request $request)
-    {
 
-        if ($request->getMethod() == "POST") {
+
+	/**
+	 * @Route("/report", name="report")
+	 */
+	public function reportAction(Request $request)
+	{
+		$byMonthData = $this->getAllByMonthData();
+
+		$monthByMonthData = $this->getMonthByMonthData();
+		$monthByMonthByCategoryData = $this->getMonthByMonthByCategoryData();
+
+		return $this->render('default/report.html.twig', [
+			'allByMonthData' => $byMonthData,
+			'monthByMonthData' => $monthByMonthData,
+			'monthByMonthByCategoryData' => $monthByMonthByCategoryData
+		]);
+	}
+
+	/**
+	 * @Route("/import", name="import")
+	 */
+	public function importAction(Request $request)
+	{
+		if ($request->getMethod() == "POST") {
 
 			$this->truncateOperation();
 
@@ -294,10 +312,87 @@ exit;
 			$this->import($file);
 
 			die('import done');
-        }
+		}
 
-        return $this->render('default/import.html.twig', [
-            'base_dir' => realpath($this->getParameter('kernel.root_dir').'/..').DIRECTORY_SEPARATOR,
-        ]);
-    }
+		return $this->render('default/import.html.twig', [
+		]);
+	}
+
+	protected function getAllByMonthData()
+	{
+		$em = $this->getDoctrine()->getManager();
+
+		$connection = $em->getConnection();
+		$sql = 'SELECT DATE_FORMAT(o.op_date, "%m/%Y") as `date`, SUM(o.amount) as `amount`, o.currency
+	FROM operation o
+	JOIN subcategory s on s.id = o.subcategory_id
+	JOIN category c  on c.id = s.category_id
+	WHERE o.currency = "BRL" AND o.amount > 0
+	group by  DATE_FORMAT(o.op_date, "%Y%m"), o.currency
+	;';
+
+		$stmt = $connection->query($sql);
+
+		$rows = [];
+		foreach ($stmt as $row) {
+			$rows[] = $row;
+		}
+
+		return $rows;
+	}
+
+	protected function getMonthByMonthData()
+	{
+		$em = $this->getDoctrine()->getManager();
+
+		$connection = $em->getConnection();
+		$sql = 'SELECT
+			DATE_FORMAT(o.op_date, "%m/%Y") as `date`,
+			c.name as `category`,
+			s.name as `subcategory`,
+			SUM(amount) as  `amount`, currency
+		FROM operation o
+		JOIN subcategory s on s.id = o.subcategory_id
+		JOIN category c  on c.id = s.category_id
+		WHERE o.currency = "BRL" AND o.amount > 0
+		group by  DATE_FORMAT(o.op_date, "%Y%m"), o.subcategory_id, o.currency
+		order by DATE_FORMAT(o.op_date, "%Y%m"), s.name
+		;';
+
+		$stmt = $connection->query($sql);
+
+		$rows = [];
+		foreach ($stmt as $row) {
+			$rows[$row['date']][] = $row;
+		}
+
+		return $rows;
+	}
+
+	protected function getMonthByMonthByCategoryData()
+	{
+		$em = $this->getDoctrine()->getManager();
+
+		$connection = $em->getConnection();
+		$sql = '	SELECT
+			DATE_FORMAT(o.op_date, "%m/%Y") as `date`,
+			c.name as `category`,
+			SUM(amount) as  `amount`, currency
+		FROM operation o
+		JOIN subcategory s on s.id = o.subcategory_id
+		JOIN category c  on c.id = s.category_id
+		WHERE o.currency = "BRL" AND o.amount > 0
+		group by  DATE_FORMAT(o.op_date, "%Y%m"), c.id, o.currency
+		order by DATE_FORMAT(o.op_date, "%Y%m"), c.name
+		;';
+
+		$stmt = $connection->query($sql);
+
+		$rows = [];
+		foreach ($stmt as $row) {
+			$rows[$row['date']][] = $row;
+		}
+
+		return $rows;
+	}
 }
