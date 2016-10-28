@@ -1,3 +1,10 @@
+junior:
+    resource: "@JuniorBundle/Controller/"
+    type:     annotation
+    prefix:   /junior/
+
 app:
     resource: "@AppBundle/Controller/"
     type:     annotation
+    prefix:   /budget/
+

@@ -5,9 +5,15 @@
         <title>{% block title %}Welcome!{% endblock %}</title>
         {% block stylesheets %}{% endblock %}
         <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+        {{ render(controller('AppBundle:Budget:header')) }}
     </head>
     <body>
         {% block body %}{% endblock %}
+
+        <script src="{{ asset('js/jquery-3.1.1.min.js') }}"></script>
+        <script src="{{ asset('js/Chart.js') }}"></script>
+        <script src="{{ asset('js/Utilities.js') }}"></script>
+        
         {% block javascripts %}{% endblock %}
     </body>
 </html>

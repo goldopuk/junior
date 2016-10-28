@@ -97,36 +97,11 @@ exit;
 		$connection->query('SET FOREIGN_KEY_CHECKS=1');
 	}
 
-	protected function getCategorySubcategoryMapping()
-	{
-		$mapping = [];
-		$mapping['clothing'] = ['clothing', 'shoes', 'laundry'];
-		$mapping['transportation'] = ['taxi', 'publicTransport', 'toll', 'transportation', 'parking', 'bike'];
-		$mapping['fun'] = ['musicLesson', 'musicInstrument', 'toy', 'costume', 'cafe', 'fun',
-			'cigarette', 'entertainment', 'restaurant', 'drink', 'bar',
-			'nightlife', 'sport', 'kite', 'forro', 'danceLesson'];
-		$mapping['food'] = ['breakfast', 'workfood', 'lunch', 'diner', 'grocery', 'snack'];
-		$mapping['culture'] = ['show', 'cinema'];
-		$mapping['shelter'] = ['rent', 'houseMove', 'condominio', 'gaz', 'internet'];
-		$mapping['utilities'] = ['scam', 'misc', 'phone', 'nothing', 'modem3g', 'unidentified'];
-		$mapping['medical'] = ['medication'];
-		$mapping['insurance'] = [];
-		$mapping['household'] = ['cd', 'tech', 'household', 'furniture', 'tool'];
-		$mapping['personal'] = [ 'visaBrasil', 'hairdresser'];
-		$mapping['education'] = ['press', 'education', 'course', 'book'];
-		$mapping['saving'] = [];
-		$mapping['gift'] = ['gift'];
-		$mapping['travel'] = ['travel', 'hotel'];
-		$mapping['income'] = ['salary'];
-		$mapping['tax'] = ['tax'];
-
-		return $mapping;
-	}
-
-
 	protected function importCategories()
 	{
-		$mapping = $this->getCategorySubcategoryMapping();
+		$operationServ = $this->get('operation_service');
+
+		$mapping = $operationServ->getCategorySubcategoryMapping();
 
 		$em = $this->getDoctrine()->getManager();
 
@@ -160,7 +135,8 @@ exit;
 
 	protected function getCategoryBySubcategorySlug($slug)
 	{
-		$mapping = $this->getCategorySubcategoryMapping();
+		$operationServ = $this->get('operation_service');
+		$mapping = $operationServ->getCategorySubcategoryMapping();
 
 		foreach ($mapping as $categorySlug => $subcategorySlugs) {
 			if (in_array($slug, $subcategorySlugs)) {
@@ -279,7 +255,7 @@ exit;
 
 
 	/**
-	 * @Route("/report", name="report")
+	 * @Route("/reports", name="reports")
 	 */
 	public function reportAction(Request $request)
 	{
@@ -318,81 +294,4 @@ exit;
 		]);
 	}
 
-	protected function getAllByMonthData()
-	{
-		$em = $this->getDoctrine()->getManager();
-
-		$connection = $em->getConnection();
-		$sql = 'SELECT DATE_FORMAT(o.op_date, "%m/%Y") as `date`, SUM(o.amount) as `amount`, o.currency
-	FROM operation o
-	JOIN subcategory s on s.id = o.subcategory_id
-	JOIN category c  on c.id = s.category_id
-	WHERE o.currency = "BRL" AND o.amount > 0
-	group by  DATE_FORMAT(o.op_date, "%Y%m"), o.currency
-	;';
-
-		$stmt = $connection->query($sql);
-
-		$rows = [];
-		foreach ($stmt as $row) {
-			$rows[] = $row;
-		}
-
-		return $rows;
-	}
-
-	protected function getMonthByMonthData()
-	{
-		$em = $this->getDoctrine()->getManager();
-
-		$connection = $em->getConnection();
-		$sql = 'SELECT
-			DATE_FORMAT(o.op_date, "%m/%Y") as `date`,
-			c.name as `category`,
-			s.name as `subcategory`,
-			SUM(amount) as  `amount`, currency
-		FROM operation o
-		JOIN subcategory s on s.id = o.subcategory_id
-		JOIN category c  on c.id = s.category_id
-		WHERE o.currency = "BRL" AND o.amount > 0
-		group by  DATE_FORMAT(o.op_date, "%Y%m"), o.subcategory_id, o.currency
-		order by DATE_FORMAT(o.op_date, "%Y%m"), s.name
-		;';
-
-		$stmt = $connection->query($sql);
-
-		$rows = [];
-		foreach ($stmt as $row) {
-			$rows[$row['date']][] = $row;
-		}
-
-		return $rows;
-	}
-
-	protected function getMonthByMonthByCategoryData()
-	{
-		$em = $this->getDoctrine()->getManager();
-
-		$connection = $em->getConnection();
-		$sql = '	SELECT
-			DATE_FORMAT(o.op_date, "%m/%Y") as `date`,
-			c.name as `category`,
-			SUM(amount) as  `amount`, currency
-		FROM operation o
-		JOIN subcategory s on s.id = o.subcategory_id
-		JOIN category c  on c.id = s.category_id
-		WHERE o.currency = "BRL" AND o.amount > 0
-		group by  DATE_FORMAT(o.op_date, "%Y%m"), c.id, o.currency
-		order by DATE_FORMAT(o.op_date, "%Y%m"), c.name
-		;';
-
-		$stmt = $connection->query($sql);
-
-		$rows = [];
-		foreach ($stmt as $row) {
-			$rows[$row['date']][] = $row;
-		}
-
-		return $rows;
-	}
 }

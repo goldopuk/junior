@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <script>
+        var listSumByMonth = {{ listSumByMonth|json_encode|raw }};
+    </script>
+
+    {{ form_start(form) }}
+    {{ form_widget(form) }}
+    {{ form_end(form) }}
+
+    <div id="wrapper">
+        <div id="container">
+
+
+
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block javascripts %}
+    <script src="{{ asset('js/report.js') }}"></script>
+{% endblock %}

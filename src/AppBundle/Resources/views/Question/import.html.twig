@@ -1,0 +1,23 @@
+{% extends "::base.html.twig" %}
+
+{% block title %}AppBundle:Question:Import{% endblock %}
+
+{% block body %}
+    <div id="wrapper">
+        <div id="container">
+            <form method="post" enctype="multipart/form-data">
+
+                <input type="file" name="operations" />
+                <br>
+                <input type="text" name="name">
+                <br>
+                <input type="submit">
+
+
+            </form>
+
+
+        </div>
+    </div>
+{% endblock %}
+

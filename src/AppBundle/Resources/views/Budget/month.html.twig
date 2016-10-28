@@ -1,0 +1,30 @@
+{% extends "::base.html.twig" %}
+
+{% block title %}AppBundle:Budget:month{% endblock %}
+
+{% block body %}
+
+    <script>
+        var listSumBySubCategory = {{ listSumBySubcategory|json_encode|raw }};
+        var listSumByCategory = {{ listSumByCategory|json_encode|raw }};
+    </script>
+
+    <div id="wrapper">
+
+        {{ form_start(form) }}
+        {{ form_widget(form) }}
+        {{ form_end(form) }}
+
+
+        <div id="container">
+            Total : {{ totalSum }}
+
+
+        </div>
+    </div>
+    <script src="{{ asset('js/jquery-3.1.1.min.js') }}"></script>
+    <script src="{{ asset('js/Chart.js') }}"></script>
+    <script src="{{ asset('js/Utilities.js') }}"></script>
+    <script src="{{ asset('js/month.js') }}"></script>
+{% endblock %}
+
