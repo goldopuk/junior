@@ -210,7 +210,6 @@ exit;
 			}
 
 			$op = new Operation();
-			$op->setAmount($row['amount']);
 			$op->setSubcategory($sub);
 
 			if ($row['created']) {
@@ -223,7 +222,14 @@ exit;
 			}
 
 			$op->setOpDate($created);
-			$op->setCurrency($row['currency']);
+
+			$changeRate = 3.6;
+			$op->setChangeRate($changeRate);
+
+			$amount = $row['currency'] === 'EUR' ? round($changeRate * $row['amount']) : $row['amount'];
+			$op->setAmount($amount);
+
+			$op->setCurrency('BRL');
 			$op->setDescription($row['description']);
 
 			$em->persist($op);

@@ -36,6 +36,11 @@ class Operation {
      */
     private $currency;
 
+    /**
+     * @ORM\Column(type="decimal", scale=2, nullable=true)
+     */
+    private $changeRate;
+
 	/**
 	 * @ORM\ManyToOne(targetEntity="Subcategory", inversedBy="operations")
 	 * @ORM\JoinColumn(name="subcategory_id", referencedColumnName="id")
@@ -172,5 +177,29 @@ class Operation {
     public function getSubcategory()
     {
         return $this->subcategory;
+    }
+
+    /**
+     * Set changeRate
+     *
+     * @param string $changeRate
+     *
+     * @return Operation
+     */
+    public function setChangeRate($changeRate)
+    {
+        $this->changeRate = $changeRate;
+
+        return $this;
+    }
+
+    /**
+     * Get changeRate
+     *
+     * @return string
+     */
+    public function getChangeRate()
+    {
+        return $this->changeRate;
     }
 }
