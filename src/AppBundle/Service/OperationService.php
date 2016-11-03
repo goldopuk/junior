@@ -12,17 +12,20 @@ class OperationService
         $this->em = $em;
     }
 
-    public function getListOfSumByMonth()
+    public function getListOfSumByMonth($income = false)
     {
         $em = $this->em;
 
         $connection = $em->getConnection();
 
-        $sql = 'SELECT DATE_FORMAT(o.op_date, "%m/%Y") as `date`, SUM(o.amount) as `amount`, o.currency
+		$sign = $income ? '<=' : '>';
+
+        $sql = 'SELECT DATE_FORMAT(o.op_date, "%m/%Y") as `date`, ABS(SUM(o.amount)) as `amount`, o.currency
             FROM operation o
             JOIN subcategory s on s.id = o.subcategory_id
             JOIN category c  on c.id = s.category_id
-            WHERE o.amount > 0
+			WHERE o.amount ' . $sign . ' 0
+		        -- AND o.op_date >= "2015-01-01"
             group by  DATE_FORMAT(o.op_date, "%Y%m")
             ;'
         ;
@@ -37,17 +40,19 @@ class OperationService
         return $rows;
     }
 
-    public function getListOfSumByMonthForCategory(Entity\Category $category, $currency = "BRL")
+    public function getListOfSumByMonthForCategory(Entity\Category $category, $income = false)
     {
         $em = $this->em;
 
         $connection = $em->getConnection();
 
-        $sql = 'SELECT DATE_FORMAT(o.op_date, "%m/%Y") as `date`, SUM(o.amount) as `amount`, o.currency
+		$sign = $income ? '<' : '>';
+
+        $sql = 'SELECT DATE_FORMAT(o.op_date, "%m/%Y") as `date`, ABS(SUM(o.amount)) as `amount`, o.currency
             FROM operation o
             JOIN subcategory s on s.id = o.subcategory_id
             JOIN category c  on c.id = s.category_id
-            WHERE o.amount > 0
+            WHERE o.amount ' . $sign . ' 0
             AND c.id = :categoryId
             group by  DATE_FORMAT(o.op_date, "%Y%m")
             ;'
@@ -103,7 +108,7 @@ class OperationService
      * @return array
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function getListOfSumBySubcategoryForMonth($year, $month, $currency = "BRL")
+    public function getListOfSumBySubcategoryForMonth($year, $month, $income = false)
     {
         $startDate  = "$year-$month-01";
         $endDate  = "$year-$month-31";
@@ -111,17 +116,20 @@ class OperationService
         $em = $this->em;
 
         $connection = $em->getConnection();
+
+		$sign = $income ? '<' : '>';
+
         $sql = '
             SELECT
                 c.name as `category`,
                 s.name as `subcategory`,
-                SUM(amount) as  `amount`,
+                ABS(SUM(amount)) as  `amount`,
                 currency
             FROM operation o
             JOIN subcategory s on s.id = o.subcategory_id
             JOIN category c  on c.id = s.category_id
             WHERE
-                o.amount > 0
+                o.amount ' . $sign . ' 0
                 AND (o.op_date BETWEEN :startDate AND :endDate)
             group by  o.subcategory_id
             order by c.name, s.name;'
@@ -148,7 +156,7 @@ class OperationService
      * @return array
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function getListOfSumByCategoryForMonth($year, $month)
+    public function getListOfSumByCategoryForMonth($year, $month, $income = false)
     {
         $startDate  = "$year-$month-01";
         $endDate  = "$year-$month-31";
@@ -156,16 +164,19 @@ class OperationService
         $em = $this->em;
 
         $connection = $em->getConnection();
+
+		$sign = $income ? '<' : '>';
+
         $sql = '
             SELECT
                 c.name as `category`,
-                SUM(amount) as  `amount`,
+                ABS(SUM(amount)) as  `amount`,
                 currency
             FROM operation o
             JOIN subcategory s on s.id = o.subcategory_id
             JOIN category c  on c.id = s.category_id
             WHERE
-                o.amount > 0
+                o.amount ' . $sign . ' 0
                 AND (o.op_date BETWEEN :startDate AND :endDate)
             group by  c.id
             order by c.name, s.name;'
@@ -195,21 +206,21 @@ class OperationService
             'nightlife', 'sport', 'kite', 'forro', 'danceLesson', 'bike', 'camping', 'surfLesson', 'sportItem'];
         $mapping['food'] = ['breakfast', 'workfood', 'lunch', 'diner', 'grocery', 'snack'];
         $mapping['culture'] = ['show', 'cinema', 'museum'];
-        $mapping['shelter'] = ['rent', 'houseMove', 'condominio', 'gaz', 'internet'];
+        $mapping['shelter'] = ['rent', 'houseMove', 'condominio', 'gaz', 'internet','easyquarto'];
         $mapping['utilities'] = ['scam', 'misc', 'nothing', 'unidentified', 'post'];
         $mapping['communication'] = ['phone', 'modem3g', 'skype'];
         $mapping['medical'] = ['medication', 'dental','lens', 'glasses', 'earplug'];
         $mapping['insurance'] = ['maif'];
-        $mapping['bank'] = ['creditcard', 'zen', 'itau'];
+        $mapping['bank'] = ['zen', 'itau', 'itauCard', 'itauJuros'];
         $mapping['household'] = ['cd', 'tech', 'household', 'furniture', 'tool', 'papeterie', 'map', 'apps'];
         $mapping['personal'] = [ 'visaBrasil', 'hairdresser'];
         $mapping['education'] = ['press', 'education', 'course', 'book', 'coaching'];
         $mapping['saving'] = ['assurancevie', 'fund', 'pension'];
-        $mapping['gift'] = ['gift'];
+        $mapping['gift'] = ['gift', 'donation'];
         $mapping['travel'] = ['travel', 'hotel', 'bus', 'flight', 'train','hostel'];
-        $mapping['income'] = ['salary','cheque', 'sale'];
-        $mapping['tax'] = ['tax','urssaf'];
-        $mapping['pro'] = ['server', 'domainName', 'catho'];
+        $mapping['income'] = ['salary','cheque', 'sale', 'invoice', 'incomegift'];
+        $mapping['tax'] = ['tax','urssaf', 'naira', 'roberto'];
+        $mapping['pro'] = ['server', 'domainName', 'catho', 'magnus'];
 
         return $mapping;
     }
@@ -218,9 +229,10 @@ class OperationService
     {
         $mapping = [];
         $mapping['clothing'] = 'red';
+        $mapping['bank'] = 'purple';
         $mapping['transportation'] = 'yellow';
         $mapping['food'] = 'blue';
-        $mapping['fun'] = 'SkyBlue';
+        $mapping['fun'] = 'skyblue';
         $mapping['culture'] = 'green';
         $mapping['shelter'] = 'black';
         $mapping['utilities'] = 'orange';
@@ -230,10 +242,12 @@ class OperationService
         $mapping['personal'] = 'cyan';
         $mapping['education'] = 'indigo';
         $mapping['saving'] = 'lime';
-        $mapping['gift'] = 'MediumPurple';
+        $mapping['gift'] = 'mediumpurple';
+        $mapping['communication'] = 'blue';
+        $mapping['pro'] = 'blue';
         $mapping['travel'] = 'wheat';
-        $mapping['income'] = 'Navy ';
-        $mapping['tax'] = 'OliveDrab';
+        $mapping['income'] = 'navy';
+        $mapping['tax'] = 'olivedrab';
 
         return $mapping;
     }

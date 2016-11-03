@@ -121,8 +121,14 @@ exit;
 
 		foreach ($rows as $row) {
 
-			if ( ! $row['subcategory']) {
+			// to ignore empty lines
+			if ( ! $row['subcategory'] && ! $row['amount']) {
 				continue;
+			}
+
+			if ( ! $row['subcategory']) {
+				var_dump($row);
+				throw new \Exception('missing subcategory');
 			}
 
 			if ( ! in_array($row['subcategory'], $subcategories)) {

@@ -26,6 +26,33 @@ Utilities.createChart = function (labels, values, colors, title) {
         }
     });
 }
+
+
+Utilities.createChart2 = function (datasets, labels) {
+
+    var ctx = $('<canvas width="400" height="100"></canvas>').appendTo('body');
+
+    console.log(labels);
+    console.log(datasets);
+
+    return new Chart(ctx, {
+        type: 'bar',
+        label: 'toto',
+        data: {
+            labels: labels,
+            datasets: datasets
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero:true
+                    }
+                }]
+            }
+        }
+    });
+}
 Utilities.getDatastore = function (key) {
     return datastore[key] ? datastore[key] : null;
 }

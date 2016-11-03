@@ -42,6 +42,8 @@ class BudgetController extends Controller
         $form->handleRequest($request);
 
         $category = null;
+		$income = false;
+
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
 
@@ -53,13 +55,17 @@ class BudgetController extends Controller
         }
 
         if ($category) {
-            $listSumByMonth = $operationServ->getListOfSumByMonthForCategory($category);
+            $listSumByMonth = $operationServ->getListOfSumByMonthForCategory($category, $income);
+			$listIncomeByMonth = null;
         } else {
-            $listSumByMonth = $operationServ->getListOfSumByMonth();
-        }
+            $listSumByMonth = $operationServ->getListOfSumByMonth($income);
+			$listIncomeByMonth = $operationServ->getListOfSumByMonth(true);
+		}
 
-        return $this->render('AppBundle:Budget:report.html.twig', [
+
+		return $this->render('AppBundle:Budget:report.html.twig', [
             'listSumByMonth' => $listSumByMonth,
+            'listIncomeByMonth' => $listIncomeByMonth,
             'form' => $form->createView()
         ]);
     }
@@ -79,6 +85,7 @@ class BudgetController extends Controller
         $form = $this->createFormBuilder()
             ->add('year', ChoiceType::class, ['choices' => ["2014" => "2014","2015" => "2015", "2016" => "2016"]])
             ->add('month', ChoiceType::class, ['choices' => $monthList])
+			->add('type', ChoiceType::class, ['choices' => ['expense' => "expense", 'income' => "income"]])
             ->add('send', SubmitType::class, array('label' => 'send'))
             ->setMethod('get')
             ->getForm();
@@ -96,8 +103,12 @@ class BudgetController extends Controller
 
             $sum = $operationServ->getSumOfMonth($year, $month);
 
-            $list = $operationServ->getListOfSumBySubcategoryForMonth($year, $month);
-            $listSumByCategory = $operationServ->getListOfSumByCategoryForMonth($year, $month);
+			$type = $data['type'];
+
+			$income = $type == 'income';
+
+            $list = $operationServ->getListOfSumBySubcategoryForMonth($year, $month, $income);
+            $listSumByCategory = $operationServ->getListOfSumByCategoryForMonth($year, $month, $income);
         } else {
             $sum = 0;
             $list = [];
