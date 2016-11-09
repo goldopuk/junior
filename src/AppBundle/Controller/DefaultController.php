@@ -200,6 +200,10 @@ exit;
 
 		foreach ($rows as $row) {
 
+			if ($row['more'] === 'ignore') {
+				continue;
+			}
+
 			$subcatSlug = trim($row['subcategory']);
 
 			if (!$subcatSlug) {
@@ -229,7 +233,8 @@ exit;
 
 			$op->setOpDate($created);
 
-			$changeRate = 3.6;
+
+			$changeRate = $this->getChangeRate($created);
 			$op->setChangeRate($changeRate);
 
 			$amount = $row['currency'] === 'EUR' ? round($changeRate * $row['amount']) : $row['amount'];
@@ -244,6 +249,25 @@ exit;
 		}
 
 		$em->flush();
+	}
+
+	protected function getChangeRate(\DateTime $d)
+	{
+		switch ($d->format('Y')) {
+			case 2012:
+				return 2.6;
+			case 2013:
+				return 3;
+			case 2014:
+				return 3;
+			case 2015:
+				return 4;
+			case 2016:
+				return 3.6;
+			default:
+				return 3;
+		}
+
 	}
 
 	protected function import(UploadedFile $file)

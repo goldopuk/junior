@@ -62,9 +62,14 @@ class BudgetController extends Controller
 			$listIncomeByMonth = $operationServ->getListOfSumByMonth(true);
 		}
 
+        $listSumByYear = $operationServ->getListOfSumByYear();
+        $listIncomeByYear = $operationServ->getListOfSumByYear(true);
+
 
 		return $this->render('AppBundle:Budget:report.html.twig', [
             'listSumByMonth' => $listSumByMonth,
+            'listSumByYear' => $listSumByYear,
+            'listIncomeByYear' => $listIncomeByYear,
             'listIncomeByMonth' => $listIncomeByMonth,
             'form' => $form->createView()
         ]);

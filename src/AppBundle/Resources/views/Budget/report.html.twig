@@ -13,8 +13,23 @@
 
     <div id="wrapper">
         <div id="container">
-
-
+            <table>
+                {%  for sum in listSumByYear  %}
+                <tr>
+                    <td>{{ sum.date }}</td>
+                    <td>{{ sum.amount }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            Income
+            <table>
+                {%  for sum in listIncomeByYear  %}
+                    <tr>
+                        <td>{{ sum.date }}</td>
+                        <td>{{ sum.amount }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
 
         </div>
     </div>

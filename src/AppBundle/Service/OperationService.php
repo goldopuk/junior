@@ -40,6 +40,34 @@ class OperationService
         return $rows;
     }
 
+    public function getListOfSumByYear($income = false)
+    {
+        $em = $this->em;
+
+        $connection = $em->getConnection();
+
+        $sign = $income ? '<=' : '>';
+
+        $sql = 'SELECT DATE_FORMAT(o.op_date, "%Y") as `date`, ABS(SUM(o.amount)) as `amount`, o.currency
+            FROM operation o
+            JOIN subcategory s on s.id = o.subcategory_id
+            JOIN category c  on c.id = s.category_id
+			WHERE o.amount ' . $sign . ' 0
+		        -- AND o.op_date >= "2015-01-01"
+            group by  DATE_FORMAT(o.op_date, "%Y")
+            ;'
+        ;
+
+        $stmt = $connection->query($sql);
+
+        $rows = [];
+        foreach ($stmt as $row) {
+            $rows[] = $row;
+        }
+
+        return $rows;
+    }
+
     public function getListOfSumByMonthForCategory(Entity\Category $category, $income = false)
     {
         $em = $this->em;
