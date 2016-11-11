@@ -228,25 +228,25 @@ class OperationService
     {
         $mapping = [];
         $mapping['clothing'] = ['clothing', 'shoes', 'laundry'];
-        $mapping['transportation'] = ['taxi', 'publicTransport', 'toll', 'transportation', 'parking', 'petrol', 'blablacar'];
-        $mapping['fun'] = ['deezer',  'netflix',  'musicLesson', 'musicInstrument', 'toy', 'costume', 'cafe', 'fun',
-            'cigarette', 'entertainment', 'restaurant', 'drink', 'bar',
-            'nightlife', 'sport', 'kite', 'forro', 'danceLesson', 'bike', 'camping', 'surfLesson', 'sportItem'];
+        $mapping['transportation'] = ['carRental','taxi', 'taxiBoat', 'publicTransport', 'toll', 'transportation', 'parking', 'petrol', 'blablacar'];
+        $mapping['fun'] = ['deezer',  'tour', 'netflix',  'musicLesson', 'musicInstrument', 'toy', 'costume', 'cafe', 'fun',
+            'cigarette', 'entertainment', 'restaurant', 'drink', 'bar', 'beach', 'diving', 'park', 'trek', 'kiteLesson',
+            'nightlife', 'sport', 'kite','surf', 'forro', 'danceLesson', 'bike', 'camping', 'surfLesson', 'sportItem'];
         $mapping['food'] = ['breakfast', 'workfood', 'lunch', 'diner', 'grocery', 'snack'];
         $mapping['culture'] = ['show', 'cinema', 'museum'];
-        $mapping['shelter'] = ['rent', 'houseMove', 'condominio', 'gaz', 'internet','easyquarto'];
-        $mapping['utilities'] = ['scam', 'misc', 'nothing', 'unidentified', 'post'];
+        $mapping['shelter'] = ['rent', 'houseMove', 'condominio', 'gaz', 'internet', 'theater' ,'easyquarto', 'houseCleanUp', 'electricity'];
+        $mapping['utilities'] = ['laundry', 'scam', 'nothing', 'unidentified', 'post'];
         $mapping['communication'] = ['phone', 'modem3g', 'skype'];
-        $mapping['medical'] = ['medication', 'dental','lens', 'glasses', 'earplug'];
+        $mapping['medical'] = ['medication', 'dental','lens', 'glasses', 'earplug', 'psy', 'phycician'];
         $mapping['insurance'] = ['maif'];
         $mapping['bank'] = ['zen', 'itau', 'itauCard', 'itauJuros'];
-        $mapping['household'] = ['cd', 'tech', 'household', 'furniture', 'tool', 'papeterie', 'map', 'apps'];
+        $mapping['household'] = ['cd', 'dvd', 'tech', 'household', 'furniture', 'tool', 'misc', 'papeterie', 'backpack', 'map', 'apps'];
         $mapping['personal'] = [ 'visaBrasil', 'hairdresser'];
-        $mapping['education'] = ['press', 'education', 'course', 'book', 'coaching'];
+        $mapping['education'] = ['press', 'education', 'course', 'book', 'coaching', 'buddhism', 'conference'];
         $mapping['saving'] = ['assurancevie', 'fund', 'pension'];
         $mapping['gift'] = ['gift', 'donation'];
-        $mapping['travel'] = ['travel', 'hotel', 'bus', 'flight', 'train','hostel'];
-        $mapping['income'] = ['salary','cheque', 'sale', 'invoice', 'incomegift'];
+        $mapping['travel'] = ['travel', 'hotel', 'bus', 'flight', 'train','hostel', 'travelPack', 'hotelcamping'];
+        $mapping['income'] = ['salary','cheque', 'sale', 'invoice', 'incomegift', 'unemployment', 'income_unidentified'];
         $mapping['tax'] = ['tax','urssaf', 'naira', 'roberto'];
         $mapping['pro'] = ['server', 'domainName', 'catho', 'magnus'];
 
