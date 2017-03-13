@@ -29,11 +29,14 @@
         "sensio/framework-extra-bundle": "^3.0.2",
         "incenteev/composer-parameter-handler": "^2.0",
         "stof/doctrine-extensions-bundle": "^1.2",
-        "parsecsv/php-parsecsv": "0.4.5"
+        "parsecsv/php-parsecsv": "0.4.5",
+        "google/apiclient": "^2.0"
     },
     "require-dev": {
         "sensio/generator-bundle": "^3.0",
-        "symfony/phpunit-bridge": "^3.0"
+        "symfony/phpunit-bridge": "^3.0",
+        "phpunit/phpunit": "5.5.*",
+        "doctrine/doctrine-fixtures-bundle": "^2.3"
     },
     "scripts": {
         "symfony-scripts": [

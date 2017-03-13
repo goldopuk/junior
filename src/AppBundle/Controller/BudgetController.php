@@ -80,7 +80,6 @@ class BudgetController extends Controller
      */
     public function monthAction(Request $request)
     {
-
         $monthList = [];
 
         for ($i = 1; $i <= 12 ; $i++) {
@@ -88,15 +87,21 @@ class BudgetController extends Controller
         }
 
         $form = $this->createFormBuilder()
-            ->add('year', ChoiceType::class, ['choices' => ["2014" => "2014","2015" => "2015", "2016" => "2016"]])
+            ->add('year', ChoiceType::class, ['choices' => ["2014" => "2014","2015" => "2015", "2016" => "2016",
+                "2017" => "2017"]])
             ->add('month', ChoiceType::class, ['choices' => $monthList])
 			->add('type', ChoiceType::class, ['choices' => ['expense' => "expense", 'income' => "income"]])
             ->add('send', SubmitType::class, array('label' => 'send'))
             ->setMethod('get')
             ->getForm();
 
-
         $form->handleRequest($request);
+
+        $totalIncome = null;
+        $sum = 0;
+        $list = [];
+        $listSumByCategory = [];
+        $saving = null;
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
@@ -107,6 +112,8 @@ class BudgetController extends Controller
             $operationServ = $this->get('operation_service');
 
             $sum = $operationServ->getSumOfMonth($year, $month);
+            $totalIncome = $operationServ->getIncomeOfMonth($year, $month);
+            $saving = $operationServ->getSavingOfMonth($year, $month);
 
 			$type = $data['type'];
 
@@ -114,16 +121,40 @@ class BudgetController extends Controller
 
             $list = $operationServ->getListOfSumBySubcategoryForMonth($year, $month, $income);
             $listSumByCategory = $operationServ->getListOfSumByCategoryForMonth($year, $month, $income);
-        } else {
-            $sum = 0;
-            $list = [];
-            $listSumByCategory = [];
         }
 
         return $this->render('AppBundle:Budget:month.html.twig', array(
             "totalSum" => $sum,
+            "saving" => $saving,
+            "totalIncome" => $totalIncome,
             "listSumBySubcategory" => $list,
             "listSumByCategory" => $listSumByCategory,
+            'form' => $form->createView()
+        ));
+    }
+
+    public function yearAction(Request $request)
+    {
+        $form = $this->createFormBuilder()
+            ->add('year', ChoiceType::class, ['choices' => ["2014" => "2014","2015" => "2015", "2016" => "2016"]])
+            ->add('send', SubmitType::class, array('label' => 'send'))
+            ->setMethod('get')
+            ->getForm();
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+
+            $year = $data['year'];
+
+            $operationServ = $this->get('operation_service');
+
+            $listOfSumByMonth = $operationServ->getListOfSumByMonth($year);
+        }
+
+        return $this->render('AppBundle:Budget:year.html.twig', array(
+            "listOfSumByMonth" => $listOfSumByMonth,
             'form' => $form->createView()
         ));
     }

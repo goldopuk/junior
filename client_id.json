@@ -1,0 +1,13 @@
+{
+  "web": {
+    "client_id": "1069339327635-2pusnahgaitc9lto4l5l8600jt14856f.apps.googleusercontent.com",
+    "project_id": "round-fortress-155010",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://accounts.google.com/o/oauth2/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_secret": "irNO9qm98w_w7pl7beS_Xnsx",
+    "redirect_uris": [
+      "http://127.0.0.1/junior/web/app_dev.php/oauth2/callback"
+    ]
+  }
+}

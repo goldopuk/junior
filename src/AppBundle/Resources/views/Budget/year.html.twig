@@ -1,12 +1,11 @@
 {% extends "::base.html.twig" %}
 
-{% block title %}AppBundle:Budget:month{% endblock %}
+{% block title %}AppBundle:Budget:year{% endblock %}
 
 {% block body %}
 
     <script>
-        var listSumBySubCategory = {{ listSumBySubcategory|json_encode|raw }};
-        var listSumByCategory = {{ listSumByCategory|json_encode|raw }};
+        var listSumByMonth = {{ listSumByMonth|json_encode|raw }};
     </script>
 
     <div id="wrapper">
@@ -23,12 +22,11 @@
             Real saving : {{ totalIncome - totalSum }}<br>
             Total : {{ totalIncome - totalSum - saving }}
 
-
         </div>
     </div>
     <script src="{{ asset('js/jquery-3.1.1.min.js') }}"></script>
     <script src="{{ asset('js/Chart.js') }}"></script>
     <script src="{{ asset('js/Utilities.js') }}"></script>
-    <script src="{{ asset('js/month.js') }}"></script>
+    <script src="{{ asset('js/year.js') }}"></script>
 {% endblock %}
 

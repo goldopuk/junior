@@ -7,10 +7,8 @@ use AppBundle\Entity\Operation;
 use AppBundle\Entity\Subcategory;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\Debug\Debug;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Validator\Constraints\DateTime;
 
 class DefaultController extends Controller
 {
@@ -270,9 +268,30 @@ exit;
 
 	}
 
-	protected function import(UploadedFile $file)
+	function downloadCsvFromDrive()
 	{
-		$path = $file->getRealPath();
+		// Get the API client and construct the service object.
+		$client = $this->getClient();
+		$service = new \Google_Service_Drive($client);
+
+
+		$fileId = '16ZwuttUPY2XzpxyIzl6U7GLqdkPexRGNLASC1TvWz8U';
+		$content = $service->files->export($fileId, 'text/csv', array(
+			'alt' => 'media' ));
+		/**
+		 * @var $content \GuzzleHttp\Psr7\Response
+		 */
+		$str = (string)$content->getBody();
+
+		$path = '/tmp/tmp.cvf';
+		file_put_contents($path, $str);
+
+		return $path;
+	}
+
+	protected function import()
+	{
+		$path = $this->downloadCsvFromDrive();
 
 		$csv = new \parseCSV($path);
 
@@ -287,7 +306,42 @@ exit;
 		$this->importOperations($rows);
 	}
 
+	/**
+	 * Returns an authorized API client.
+	 * @return \Google_Client the authorized client object
+	 */
+	function getClient() {
 
+		$scopes = implode(' ', array(
+			\Google_Service_Drive::DRIVE_METADATA_READONLY,
+			\Google_Service_Drive::DRIVE_FILE,
+			\Google_Service_Drive::DRIVE,
+		));
+
+		$secretFile = realpath($this->get('kernel')->getRootDir() . '/../client_secret.json');
+
+		$client = new \Google_Client();
+		$client->setApplicationName('Drive API PHP Quickstart');
+		$client->setScopes($scopes);
+		$client->setAuthConfig($secretFile);
+		$client->setAccessType('offline');
+
+		// Load previously authorized credentials from a file.
+		$credentialsPath = '/home/julien/.credentials/drive-php-quickstart.json';
+		if (file_exists($credentialsPath)) {
+			$accessToken = json_decode(file_get_contents($credentialsPath), true);
+		} else {
+			die('need access file');
+		}
+		$client->setAccessToken($accessToken);
+
+		// Refresh the token if it's expired.
+		if ($client->isAccessTokenExpired()) {
+			$client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
+			file_put_contents($credentialsPath, json_encode($client->getAccessToken()));
+		}
+		return $client;
+	}
 
 
 	/**
