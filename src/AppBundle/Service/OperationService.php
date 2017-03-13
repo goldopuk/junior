@@ -6,6 +6,7 @@ use Doctrine\ORM\EntityManager;
 
 class OperationService
 {
+
     function __construct(EntityManager $em)
     {
         $this->em = $em;
@@ -15,7 +16,7 @@ class OperationService
     {
         $em = $this->em;
 
-        $connection = $em->getConnection()  ;
+        $connection = $em->getConnection();
 
 		$sign = $income ? '<=' : '>';
 
@@ -37,11 +38,6 @@ class OperationService
         }
 
         return $rows;
-    }
-
-    function myFunctionTest()
-    {
-        return true;
     }
 
     public function getListOfSumByYear($income = false)
@@ -72,27 +68,22 @@ class OperationService
         return $rows;
     }
 
-    public function getListOfSumByMonthForCategory(Entity\Category $category, $income = false, $year = null)
+    public function getListOfSumByMonthForCategory(Entity\Category $category, $income = false)
     {
         $em = $this->em;
 
         $connection = $em->getConnection();
 
 		$sign = $income ? '<' : '>';
-        $whereAmount = "o.amount $sign 0";
 
-        $whereYear = $year ?  "AND DATE_FORMAT(o.op_date, '%Y') = '$year'" : null;
-
-        $sql = "SELECT DATE_FORMAT(o.op_date, '%m/%Y') as `date`, ABS(SUM(o.amount)) as `amount`, o.currency
+        $sql = 'SELECT DATE_FORMAT(o.op_date, "%m/%Y") as `date`, ABS(SUM(o.amount)) as `amount`, o.currency
             FROM operation o
             JOIN subcategory s on s.id = o.subcategory_id
             JOIN category c  on c.id = s.category_id
-            WHERE 1
-            $whereAmount
+            WHERE o.amount ' . $sign . ' 0
             AND c.id = :categoryId
-            $whereYear
-            group by  DATE_FORMAT(o.op_date, '%Y%m')
-            ;"
+            group by  DATE_FORMAT(o.op_date, "%Y%m")
+            ;'
         ;
 
         $stmt = $connection->prepare($sql);
@@ -237,25 +228,25 @@ class OperationService
     {
         $mapping = [];
         $mapping['clothing'] = ['clothing', 'shoes', 'laundry'];
-        $mapping['transportation'] = ['taxi', 'publicTransport', 'toll', 'transportation', 'parking', 'petrol', 'blablacar'];
-        $mapping['fun'] = ['deezer',  'netflix','audible',  'musicLesson', 'musicInstrument', 'toy', 'costume', 'cafe', 'fun',
-            'cigarette', 'entertainment', 'restaurant', 'drink', 'bar', 'photo',
-            'nightlife', 'sport', 'kite', 'forro', 'danceLesson', 'bike', 'camping', 'surfLesson', 'sportItem'];
+        $mapping['transportation'] = ['carRental','taxi', 'taxiBoat', 'publicTransport', 'toll', 'transportation', 'parking', 'petrol', 'blablacar'];
+        $mapping['fun'] = ['deezer',  'tour', 'netflix',  'musicLesson', 'musicInstrument', 'toy', 'costume', 'cafe', 'fun',
+            'cigarette', 'entertainment', 'restaurant', 'drink', 'bar', 'beach', 'diving', 'park', 'trek', 'kiteLesson',
+            'nightlife', 'sport', 'kite','surf', 'forro', 'danceLesson', 'bike', 'camping', 'surfLesson', 'sportItem'];
         $mapping['food'] = ['breakfast', 'workfood', 'lunch', 'diner', 'grocery', 'snack'];
         $mapping['culture'] = ['show', 'cinema', 'museum'];
-        $mapping['shelter'] = ['rent', 'houseMove', 'condominio', 'gaz', 'internet','easyquarto', 'plumber'];
-        $mapping['utilities'] = ['scam', 'misc', 'nothing', 'unidentified', 'post'];
+        $mapping['shelter'] = ['rent', 'houseMove', 'condominio', 'gaz', 'internet', 'theater' ,'easyquarto', 'houseCleanUp', 'electricity'];
+        $mapping['utilities'] = ['laundry', 'scam', 'nothing', 'unidentified', 'post'];
         $mapping['communication'] = ['phone', 'modem3g', 'skype'];
-        $mapping['medical'] = ['medication', 'dental','lens', 'glasses', 'earplug', 'psy'];
+        $mapping['medical'] = ['medication', 'dental','lens', 'glasses', 'earplug', 'psy', 'phycician'];
         $mapping['insurance'] = ['maif'];
         $mapping['bank'] = ['zen', 'itau', 'itauCard', 'itauJuros'];
-        $mapping['household'] = ['cd', 'tech', 'household', 'furniture', 'tool', 'papeterie', 'map', 'apps'];
+        $mapping['household'] = ['cd', 'dvd', 'tech', 'household', 'furniture', 'tool', 'misc', 'papeterie', 'backpack', 'map', 'apps'];
         $mapping['personal'] = [ 'visaBrasil', 'hairdresser'];
-        $mapping['education'] = ['press', 'education', 'course', 'book', 'coaching'];
+        $mapping['education'] = ['press', 'education', 'course', 'book', 'coaching', 'buddhism', 'conference'];
         $mapping['saving'] = ['assurancevie', 'fund', 'pension'];
-        $mapping['gift'] = ['gift', 'donation', 'loan'];
-        $mapping['travel'] = ['travel', 'hotel', 'bus', 'flight', 'train','hostel', 'rentacar'];
-        $mapping['income'] = ['salary','cheque', 'sale', 'invoice', 'incomegift'];
+        $mapping['gift'] = ['gift', 'donation'];
+        $mapping['travel'] = ['travel', 'hotel', 'bus', 'flight', 'train','hostel', 'travelPack', 'hotelcamping'];
+        $mapping['income'] = ['salary','cheque', 'sale', 'invoice', 'incomegift', 'unemployment', 'income_unidentified'];
         $mapping['tax'] = ['tax','urssaf', 'naira', 'roberto'];
         $mapping['pro'] = ['server', 'domainName', 'catho', 'magnus'];
 
@@ -327,7 +318,7 @@ class OperationService
         return $rows;
     }
 
-    function getSumOfMonth($year, $month)
+    function getSumOfMonth($year, $month, $currency = 'BRL')
     {
         $connection = $this->em->getConnection();
 
@@ -336,60 +327,8 @@ class OperationService
 
         $sql = 'SELECT SUM(o.amount) as `amount`
             FROM operation o
-            join subcategory s on s.id = o.subcategory_id
-            join category c on c.id = s.category_id
             WHERE
                 o.amount > 0
-                AND o.op_date BETWEEN :startDate AND :endDate
-                AND c.slug != "saving"
-            group by  DATE_FORMAT(o.op_date, "%Y%m")
-            ;'
-        ;
-
-        $stmt = $connection->prepare($sql);
-
-        $stmt->execute([":startDate" => $startDate, ":endDate" => $endDate]);
-
-        return $stmt->fetchColumn();
-    }
-
-    function getSavingOfMonth($year, $month)
-    {
-        $connection = $this->em->getConnection();
-
-        $startDate  = "$year-$month-01";
-        $endDate  = "$year-$month-31";
-
-        $sql = 'SELECT SUM(o.amount) as `amount`
-            FROM operation o
-            join subcategory s on s.id = o.subcategory_id
-            join category c on c.id = s.category_id
-            WHERE
-                o.amount > 0
-                AND o.op_date BETWEEN :startDate AND :endDate
-                AND c.slug = "saving"
-            group by  DATE_FORMAT(o.op_date, "%Y%m")
-            ;'
-        ;
-
-        $stmt = $connection->prepare($sql);
-
-        $stmt->execute([":startDate" => $startDate, ":endDate" => $endDate]);
-
-        return $stmt->fetchColumn();
-    }
-
-    function getIncomeOfMonth($year, $month)
-    {
-        $connection = $this->em->getConnection();
-
-        $startDate  = "$year-$month-01";
-        $endDate  = "$year-$month-31";
-
-        $sql = 'SELECT ABS(SUM(o.amount)) as `amount`
-            FROM operation o
-            WHERE
-                o.amount < 0
                 AND o.op_date BETWEEN :startDate AND :endDate
             group by  DATE_FORMAT(o.op_date, "%Y%m")
             ;'
