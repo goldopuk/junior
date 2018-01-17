@@ -261,6 +261,7 @@ exit;
 			case 2015:
 				return 4;
 			case 2016:
+			case 2017:
 				return 3.6;
 			default:
 				return 3;

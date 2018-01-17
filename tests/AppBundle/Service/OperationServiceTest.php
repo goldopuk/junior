@@ -14,9 +14,16 @@ class OperationServiceTest extends \Symfony\Bundle\FrameworkBundle\Test\KernelTe
         self::$container = $kernel->getContainer();
     }
 
+    function fixture()
+    {
+        $operationService = self::$container->get('operation_service');
+    }
+
     function testOne()
     {
         $operationServ = self::$container->get('operation_service');
+
+
 
         $list = $operationServ->getListOfSumByMonth();
         print_r($list);

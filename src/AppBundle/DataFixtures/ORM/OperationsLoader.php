@@ -195,6 +195,8 @@ class OperationsLoader  implements FixtureInterface, ContainerAwareInterface
                 return 4;
             case 2016:
                 return 3.6;
+            case 2017:
+                return 3.6;
             default:
                 return 3;
         }

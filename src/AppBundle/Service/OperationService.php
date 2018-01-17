@@ -228,19 +228,19 @@ class OperationService
     {
         $mapping = [];
         $mapping['clothing'] = ['clothing', 'shoes', 'laundry'];
-        $mapping['transportation'] = ['carRental','taxi', 'taxiBoat', 'publicTransport', 'toll', 'transportation', 'parking', 'petrol', 'blablacar'];
-        $mapping['fun'] = ['deezer',  'tour', 'netflix',  'musicLesson', 'musicInstrument', 'toy', 'costume', 'cafe', 'fun',
+        $mapping['transportation'] = ['carRental','taxi', 'taxiBoat', 'publicTransport', 'toll', 'transportation', 'parking', 'petrol', 'blablacar', 'train', 'carPooling'];
+        $mapping['fun'] = ['festival', 'deezer',  'tour', 'netflix', 'surfLesson', 'musicLesson', 'musicInstrument', 'toy', 'costume', 'cafe', 'fun',
             'cigarette', 'entertainment', 'restaurant', 'drink', 'bar', 'beach', 'diving', 'park', 'trek', 'kiteLesson',
-            'nightlife', 'sport', 'kite','surf', 'forro', 'danceLesson', 'bike', 'camping', 'surfLesson', 'sportItem'];
+            'nightlife', 'balfolk', 'sport', 'swimmingpool', 'kite','surf', 'forro', 'sailing', 'danceLesson', 'bike', 'camping', 'surfLesson', 'sportItem'];
         $mapping['food'] = ['breakfast', 'workfood', 'lunch', 'diner', 'grocery', 'snack'];
         $mapping['culture'] = ['show', 'cinema', 'museum'];
         $mapping['shelter'] = ['rent', 'houseMove', 'condominio', 'gaz', 'internet', 'theater' ,'easyquarto', 'houseCleanUp', 'electricity'];
         $mapping['utilities'] = ['laundry', 'scam', 'nothing', 'unidentified', 'post'];
         $mapping['communication'] = ['phone', 'modem3g', 'skype'];
-        $mapping['medical'] = ['medication', 'dental','lens', 'glasses', 'earplug', 'psy', 'phycician'];
+        $mapping['medical'] = ['medication', 'dental','lens', 'glasses', 'earplug', 'psy', 'physician', 'doctor'];
         $mapping['insurance'] = ['maif'];
         $mapping['bank'] = ['zen', 'itau', 'itauCard', 'itauJuros'];
-        $mapping['household'] = ['cd', 'dvd', 'tech', 'household', 'furniture', 'tool', 'misc', 'papeterie', 'backpack', 'map', 'apps'];
+        $mapping['household'] = ['bag', 'cd', 'dvd', 'tech', 'household', 'furniture', 'tool', 'misc', 'papeterie', 'backpack', 'map', 'apps'];
         $mapping['personal'] = [ 'visaBrasil', 'hairdresser'];
         $mapping['education'] = ['press', 'education', 'course', 'book', 'coaching', 'buddhism', 'conference'];
         $mapping['saving'] = ['assurancevie', 'fund', 'pension'];
@@ -337,6 +337,32 @@ class OperationService
         $stmt = $connection->prepare($sql);
 
         $stmt->execute([":startDate" => $startDate, ":endDate" => $endDate]);
+
+        return $stmt->fetchColumn();
+    }
+
+    function getSavingOfMonthForCategory($name, $year, $month, $currency = 'BRL')
+    {
+        $connection = $this->em->getConnection();
+
+        $startDate  = "$year-$month-01";
+        $endDate  = "$year-$month-31";
+
+        $sql = 'SELECT SUM(o.amount) as `amount`
+            FROM operation o
+            JOIN subcategory s on s.id = o.subcategory
+            JOIN category c on c.id = s.category_id
+            WHERE
+                o.amount > 0
+                AND o.op_date BETWEEN :startDate AND :endDate
+                AND c.name = :categoryName
+            group by  DATE_FORMAT(o.op_date, "%Y%m")
+            ;'
+        ;
+
+        $stmt = $connection->prepare($sql);
+
+        $stmt->execute(["name" => $name, ":startDate" => $startDate, ":endDate" => $endDate]);
 
         return $stmt->fetchColumn();
     }

@@ -104,16 +104,16 @@ class BudgetController extends Controller
         $saving = null;
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $operationServ = $this->get('operation_service');
+
             $data = $form->getData();
 
             $year = $data['year'];
             $month = $data['month'];
 
-            $operationServ = $this->get('operation_service');
-
             $sum = $operationServ->getSumOfMonth($year, $month);
-            $totalIncome = $operationServ->getIncomeOfMonth($year, $month);
-            $saving = $operationServ->getSavingOfMonth($year, $month);
+            $totalIncome = $operationServ->getSumOfMonth($year, $month);
+            $saving = 0; // $operationServ->getSavingOfMonth($year, $month);
 
 			$type = $data['type'];
 
